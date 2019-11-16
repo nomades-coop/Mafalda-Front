@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import Products from './components/products';
+import Presupuestos from './components/presupuestos';
+import NavBar from './components/navbar';
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
+// import Login from './components/login';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+class App extends Component {
+
+
+    render() {
+        return (
+          <React.Fragment>
+            <NavBar/>
+            {/* <Login/> */}
+            <table className="table m-4">
+              <thead>
+              <tr>
+                  {/* <th>Presupuesto</th> */}
+                  <th>Productos</th>
+              </tr>
+              </thead>
+              <tbody>
+                  {/* <td><Presupuestos/></td> */}
+                  <td><Products/></td>
+              </tbody>
+            </table>
+          </React.Fragment>
+    );
+  }
 }
 
 export default App;
