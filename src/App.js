@@ -1,35 +1,37 @@
 import React, { Component } from "react";
-import Products from './components/products';
-import Presupuestos from './components/presupuestos';
-import NavBar from './components/navbar';
+import { Route, Switch, Redirect } from "react-router-dom";
+import Products from "./components/products";
+import Presupuestos from "./components/presupuestos";
+import NavBar from "./components/navbar";
+import LoginForm from "./components/loginForm";
+import NotFound from "./components/notFound";
+import HomePage from "./components/homePage";
+import ProductDetails from "./components/productDetails";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
-// import Login from './components/login';
-
 
 class App extends Component {
-
-
     render() {
         return (
-          <React.Fragment>
-            <NavBar/>
-            {/* <Login/> */}
-            <table className="table m-4">
-              <thead>
-              <tr>
-                  {/* <th>Presupuesto</th> */}
-                  <th>Productos</th>
-              </tr>
-              </thead>
-              <tbody>
-                  {/* <td><Presupuestos/></td> */}
-                  <td><Products/></td>
-              </tbody>
-            </table>
-          </React.Fragment>
-    );
-  }
+            <React.Fragment>
+                <NavBar />
+                <div className="content">
+                    <Switch>
+                        <Route
+                            path="/products/:id"
+                            component={ProductDetails}
+                        />
+                        <Route path="/products" component={Products} />
+                        <Route path="/presupuestos" component={Presupuestos} />
+                        <Route path="/not-found" component={NotFound} />
+                        <Route path="/login" exact component={LoginForm} />
+                        <Route path="/" exact component={HomePage} />
+                        <Redirect to="/not-found" />
+                    </Switch>
+                </div>
+            </React.Fragment>
+        );
+    }
 }
 
 export default App;

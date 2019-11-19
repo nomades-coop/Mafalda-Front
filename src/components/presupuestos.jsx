@@ -31,19 +31,20 @@ class Presupuestos extends Component {
       this.setState({ presupuestos });
     };
 
+
     handleDelete = async presupuesto => {
       presupuesto.active = "false";
       await http.patch(config.apiEndpointPresupuesto + presupuesto.id + '/', {active: presupuesto.active});
       const presupuestos = this.state.presupuestos.filter(p => p.active !== 'false');
       this.setState({presupuestos})
-  }
+    };
 
     render() { 
         return ( 
             <React.Fragment>
                 <ToastContainer />
                 <button className="btn btn-primary m-2" onClick={this.handleAdd}>
-                    Agregar nuevo presupuesto
+                    Nuevo presupuesto
                 </button>
                 <table className="table m-4">
                     <thead>
