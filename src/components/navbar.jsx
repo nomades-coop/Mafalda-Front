@@ -8,11 +8,14 @@ const navBar = () => {
                 Libreria
             </Link>
             <div className="navbar-nav">
-                <NavLink className="nav-link" to="/products">
+                <NavLink className="nav-link" to="/productos">
                     Productos
                 </NavLink>
                 <NavLink className="nav-link" to="/presupuestos">
                     Presupuestos
+                </NavLink>
+                <NavLink className="nav-link" to="/clientes">
+                    Clientes
                 </NavLink>
                 <NavLink className="nav-link" to="/login">
                     Login

@@ -5,7 +5,10 @@ class HomePage extends Component {
         this.props.history.push("/presupuestos");
     };
     handleGoToProducts = () => {
-        this.props.history.push("/products");
+        this.props.history.push("/productos");
+    };
+    handleGoToClients = () => {
+        this.props.history.push("/clientes");
     };
 
     render() {
@@ -22,6 +25,12 @@ class HomePage extends Component {
                     onClick={this.handleGoToProducts}
                 >
                     Productos
+                </button>
+                <button
+                    className="btn btn-info  m-4"
+                    onClick={this.handleGoToClients}
+                >
+                    Clientes
                 </button>
             </React.Fragment>
         );

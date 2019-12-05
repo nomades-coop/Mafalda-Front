@@ -3,6 +3,7 @@ import { ToastContainer } from "react-toastify";
 import http from "../services/httpService";
 import config from "../config.json";
 import { Link } from "react-router-dom";
+// import ProductForm from "./productForm";
 
 class Products extends Component {
     state = {
@@ -13,17 +14,6 @@ class Products extends Component {
         const { data: products } = await http.get(config.apiEndpointProduct);
         this.setState({ products });
     }
-
-    handleAdd = async () => {
-        const obj = { name: "a", iva: "21" };
-        const { data: product } = await http.post(
-            config.apiEndpointProduct,
-            obj
-        );
-
-        const products = [product, ...this.state.products];
-        this.setState({ products });
-    };
 
     handleUpdate = async product => {
         product.name = "UPDATED";
@@ -48,19 +38,20 @@ class Products extends Component {
         return (
             <React.Fragment>
                 <ToastContainer />
-                <button
+                <Link
+                    to={`/productos/nuevo`}
                     className="btn btn-primary m-2"
-                    onClick={this.handleAdd}
+                    style={{ marginBottom: 20 }}
                 >
                     Nuevo producto
-                </button>
+                </Link>
+                {/* <button className="lalala" onClick={this.handleAdd}> </button> */}
                 <table className="table m-4">
                     <thead>
                         <tr>
                             <th>Nombre del producto</th>
                             <th>Código del producto</th>
                             <th>Precio final</th>
-                            <th>activo?</th>
                             <th>Modificar</th>
                             <th>Borrar</th>
                         </tr>
@@ -68,21 +59,29 @@ class Products extends Component {
                     <tbody>
                         {this.state.products.map(product => (
                             <tr key={product.id}>
-                                <Link to={`/products/${product.id}`}>
-                                    {product.name}
-                                </Link>
+                                <td>
+                                    <Link to={`/productos/${product.id}`}>
+                                        {product.name}
+                                    </Link>
+                                </td>
                                 <td>{product.product_code}</td>
                                 <td>{product.final_price}</td>
                                 <td>
-                                    <button
+                                    <Link
+                                        to={`/productos/modificar/${product.id}`}
+                                        className="btn btn-info btn-sm"
+                                    >
+                                        Modificar
+                                    </Link>
+                                </td>
+                                {/* <button
                                         className="btn btn-info btn-sm"
                                         onClick={() =>
                                             this.handleUpdate(product)
                                         }
                                     >
                                         Modificar
-                                    </button>
-                                </td>
+                                    </button> */}
                                 <td>
                                     <button
                                         className="btn btn-danger btn-sm"

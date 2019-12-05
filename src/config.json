@@ -1,5 +1,5 @@
 {
     "apiEndpointProduct": "http://127.0.0.1:8000/product/",
-    "apiEndpointPresupuesto": "http://localhost:8000/presupuesto/"
-  }
-  
+    "apiEndpointPresupuesto": "http://localhost:8000/presupuesto/",
+    "apiEndpointClient": "http://localhost:8000/client/"
+}
