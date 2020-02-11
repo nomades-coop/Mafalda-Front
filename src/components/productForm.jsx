@@ -1,5 +1,4 @@
 import React from "react";
-import Joi from "joi-browser";
 import Form from "./common/form";
 import http from "../services/httpService";
 import config from "../config.json";
@@ -16,45 +15,10 @@ class ProductForm extends Form {
             list_price: "",
             surcharge: "",
             iva_percentage: ""
-            // company: "",
             // picture: "",
-            // final_price: "",
-            // active: "",
         },
         errors: {}
     };
-
-    // schema = {
-    //     name: Joi.string()
-    //         .required()
-    //         .label("Nombre del producto"),
-    //     title: Joi.string()
-    //         .required()
-    //         .label("Título"),
-    //     brand: Joi.string()
-    //         .required()
-    //         .label("Marca"),
-    //     product_code: Joi.number()
-    //         .integer()
-    //         .label("Código del producto"),
-    //     wholesaler_code: Joi.number()
-    //         .integer()
-    //         .label("Código"),
-    //     iibb: Joi.number()
-    //         .integer()
-    //         .label("Ingresos Brutos"),
-    //     list_price: Joi.number()
-    //         .precision(2)
-    //         .label("Precio de lista"),
-    //     surcharge: Joi.number()
-    //         .max(100)
-    //         .integer()
-    //         .label("Porcentaje del recargo"),
-    //     iva_percentage: Joi.number()
-    //         .max(100)
-    //         .integer()
-    //         .label("Porcentaje de iva")
-    // };
 
     async componentDidMount() {
         const prodId = this.props.match.params.id;
@@ -94,19 +58,47 @@ class ProductForm extends Form {
     //     this.setState({ products });
     // };
 
-    doSubmit = async () => {
-        try {
-            const { info: product } = await http.post(
-                config.apiEndpointProduct,
-                this.state.data
-            );
-            const data = [product, ...this.state.data];
-            this.setState({ data });
-            this.props.history.push("/products");
-        } catch (e) {
-            console.log(e.response.data);
-        }
-    };
+    doSubmit() {
+        fetch(config.apiEndpointProduct, {
+            method: "POST",
+            body: JSON.stringify(this.state.data),
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            }
+        })
+            .then(response => {
+                console.log(response.status, response);
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    // let error = new Error(response.statusText);
+                    // error.response = response.json();
+                    // throw error;
+                    return response.json();
+                }
+            })
+            .then(errors => {
+                if (errors) {
+                    this.setState({ errors });
+                }
+            });
+        this.props.history.push("/productos");
+    }
+
+    // doSubmit = async () => {
+    //     try {
+    //         const { info: product } = await http.post(
+    //             config.apiEndpointProduct,
+    //             this.state.data
+    //         );
+    //         const data = [product, ...this.state.data];
+    //         this.setState({ data });
+    //         this.props.history.push("/products");
+    //     } catch (e) {
+    //         console.log(e.response.data);
+    //     }
+    // };
 
     render() {
         return (
@@ -136,15 +128,12 @@ class ProductForm extends Form {
                         "Ingresos Brutos"
                     )}
                     {this.renderInput("list_price", "Precio de lista", "$")}
-                    {this.renderInput(
-                        "Porcentaje del recargo",
-                        "Recargo",
-                        "%"
-                    )}
+                    {this.renderInput("surcharge", "Recargo", "%", "number")}
                     {this.renderInput(
                         "iva_percentage",
                         "Porcentaje de iva",
-                        "%"
+                        "%",
+                        "number"
                     )}
                 </form>
                 <button

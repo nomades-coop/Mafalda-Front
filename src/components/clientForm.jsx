@@ -1,8 +1,8 @@
-import React, { Component, setState } from "react";
-import Joi from "joi-browser";
+import React from "react";
 import Form from "./common/form";
 import http from "../services/httpService";
 import config from "../config.json";
+import { toast } from "react-toastify";
 
 class ClientForm extends Form {
     state = {
@@ -13,29 +13,26 @@ class ClientForm extends Form {
             iva_condition: "",
             sale_condition: ""
         },
-        errors: {},
-        value: ""
+        errors: {}
     };
 
-    // schema = {
-    //     date: Joi.date()
-    //         .required()
-    //         .label("Fecha de emisión"),
-    //     // los dos que siguen son con opciones traidas del back
-    //     client: Joi.string()
-    //         .required()
-    //         .label("Cliente"),
-    //     items: Joi.string()
-    //         .required()
-    //         .label("Items"),
-    //     discount: Joi.number()
-    //         .integer()
-    //         .label("Descuento")
-    // };
-
-    async componentDidMount() {
+    async componentWillMount() {
         const clientId = this.props.match.params.id;
-        if (typeof clientId === "undefined") return;
+        if (typeof clientId === "undefined") {
+            this.setState({
+                data: {
+                    name_bussinessname: "",
+                    commercial_address: "",
+                    cuit: "",
+                    iva_condition: "INS",
+                    sale_condition: "CTD"
+                }
+            });
+            this.setState({
+                form_method: "POST"
+            });
+            return;
+        }
 
         const client = await http.get(
             config.apiEndpointClient + clientId + "/"
@@ -43,32 +40,59 @@ class ClientForm extends Form {
         if (!client) return this.props.history.replace("/not-found");
 
         this.setState({ data: this.mapToViewModel(client) });
+        this.setState({
+            form_method: "PUT"
+        });
+        config.apiEndpointClient += clientId + "/";
+        // this.props.selected = this.mapToViewModel(client).iva_condition
     }
 
     mapToViewModel(client) {
         return {
-            date: client.data.name_bussinessname,
-            client: client.data.commercial_address,
-            items: client.data.cuit,
-            discount: client.data.iva_condition,
-            discount: client.data.sale_condition
+            id: client.data.id,
+            name_bussinessname: client.data.name_bussinessname,
+            commercial_address: client.data.commercial_address,
+            cuit: client.data.cuit,
+            iva_condition: client.data.iva_condition,
+            sale_condition: client.data.sale_condition
         };
     }
 
-    doSubmit = async () => {
-        const { info: client } = await http.post(
-            config.apiEndpointClient,
-            this.state.data
-        );
-        const data = [client, ...this.state.data];
-        this.setState({ data });
-        this.props.history.push("/clientes");
-    };
+    doSubmit() {
+        fetch(config.apiEndpointClient, {
+            method: this.state.form_method,
+            body: JSON.stringify(this.state.data),
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            }
+        })
+            .then(response => {
+                console.log(response.status, response);
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    // let error = new Error(response.statusText);
+                    // error.response = response.json();
+                    // throw error;
+                    return response.json();
+                }
+            })
+            .then(errors => {
+                if (errors) {
+                    toast.error("Se produjo un siguiente error", errors);
+                    this.setState({ errors });
+                    console.log("errors", errors);
+                }
+            });
+        // this.props.history.push("/clientes");
+    }
 
     handleChange(event) {
-        this.setState({ value: event.target.value });
+        let name = event.target.name;
+        let value = event.target.value;
+        this.setState({ data: { [name]: value } });
     }
-    // onChange = {(event) => setValue(event.target.value)}
 
     render() {
         return (
@@ -92,29 +116,54 @@ class ClientForm extends Form {
                         "CUIT",
                         "Ingrese el CUIT del cliente"
                     )}
-                    <div className="form-group">
-                        <label>Condición frente al IVA</label>
+                    {this.renderSelect(
+                        "iva_condition",
+                        "Condición frente al IVA",
+                        [
+                            { value: "INS", name: "Inscripto" },
+                            { value: "EXC", name: "Exento" },
+                            { value: "CFI", name: "Consumidor Final" }
+                        ],
+                        "iva_condition"
+                    )}
+                    {this.renderSelect(
+                        "sale_condition",
+                        "Condición de VENTA",
+                        [
+                            { value: "CTD", name: "Contado" },
+                            { value: "CCT", name: "Cuenta Corriente" }
+                        ],
+                        "sale_condition"
+                    )}
+                    {/* <div className="form-group">
+                        <label>Condición frente al IVA!</label>
                         <select
+                            name="iva_condition"
                             className="form-control"
                             // value={this.state.selectValue}
                             onChange={this.handleChange}
                         >
-                            <option value="INS">Inscripto</option>
+                            <option value="INS" selected>
+                                Inscripto
+                            </option>
                             <option value="EXC">Exento</option>
                             <option value="CFI">Consumidor Final</option>
                         </select>
-                    </div>
-                    <div className="form-group">
+                    </div> */}
+                    {/* <div className="form-group">
                         <label>Condición de VENTA</label>
                         <select
+                            name="sale_condition"
                             className="form-control"
                             // value={this.state.value}
                             onChange={this.handleChange}
                         >
-                            <option value="CTD">Contado</option>
+                            <option value="CTD" selected>
+                                Contado
+                            </option>
                             <option value="CCT">Cuenta Corriente</option>
                         </select>
-                    </div>
+                    </div> */}
                 </form>
                 {this.renderButton("Enviar")}
             </div>

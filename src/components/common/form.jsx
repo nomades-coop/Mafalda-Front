@@ -1,30 +1,11 @@
 import React, { Component } from "react";
-import Joi from "joi-browser";
 import Input from "./input";
-import Select from "./select";
 
 class Form extends Component {
     state = {
         data: {},
         errors: {}
     };
-
-    // validate = () => {
-    //     const options = { abortEarly: false };
-    //     const { error } = Joi.validate(this.state.data, this.schema, options);
-    //     if (!error) return null;
-
-    //     const errors = {};
-    //     for (let item of error.details) errors[item.path[0]] = item.message;
-    //     return errors;
-    // };
-
-    // validateProperty = ({ name, value }) => {
-    //     const obj = { [name]: value };
-    //     const schema = { [name]: this.schema[name] };
-    //     const { error } = Joi.validate(obj, schema);
-    //     return error ? error.details[0].message : null;
-    // };
 
     handleSubmit = e => {
         e.preventDefault();
@@ -34,6 +15,22 @@ class Form extends Component {
         // if (errors) return;
         console.log("boton llamado");
         this.doSubmit();
+        // .then(response => {
+        //     console.log(response.status, response);
+        //     if (response.status >= 200 && response.status < 300) {
+        //         return response;
+        //     } else {
+        //         var error = new Error(response.statusText);
+        //         error.response = response.json();
+        //         throw error;
+        //     }
+        // })
+        // // .catch(errors => {
+        // //     return errors.json();
+        // // })
+        // .then(errors => {
+        //     console.log(errors);
+        // });
     };
 
     handleChange = ({ currentTarget: input }) => {
@@ -52,7 +49,9 @@ class Form extends Component {
     renderButton(label) {
         return (
             // <button disabled={this.validate()} className="btn btn-primary">
-            <button className="btn btn-primary">{label}</button>
+            <button onClick={this.handleSubmit} className="btn btn-primary">
+                {label}
+            </button>
         );
     }
 
@@ -68,6 +67,32 @@ class Form extends Component {
                 error={errors[name]}
                 placeholder={placeholder}
             />
+        );
+    }
+
+    renderSelect(name, label, options, selected) {
+        const { data, errors } = this.state;
+        return (
+            <div className="form-group">
+                <label>{label}</label>
+                <select
+                    className="form-control"
+                    name={name}
+                    onChange={this.handleChange}
+                >
+                    {options.map((e, key) => {
+                        return (
+                            <option
+                                key={key}
+                                value={e.value}
+                                selected={e.value === data[selected]}
+                            >
+                                {e.name}
+                            </option>
+                        );
+                    })}
+                </select>
+            </div>
         );
     }
 }

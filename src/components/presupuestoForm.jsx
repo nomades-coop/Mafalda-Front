@@ -1,8 +1,8 @@
 import React from "react";
-import Joi from "joi-browser";
 import Form from "./common/form";
 import http from "../services/httpService";
 import config from "../config.json";
+import update from "immutability-helper";
 // import Presupuestos from "./presupuestos";
 
 class PrespuestoForm extends Form {
@@ -10,31 +10,15 @@ class PrespuestoForm extends Form {
         data: {
             date: "",
             client: "",
-            items: "",
+            items: [
+                { id: 1, name: "neko", selected: false },
+                { id: 2, name: "galletitas", selected: false }
+            ],
             discount: ""
-            // company: "",
             // picture: "",
-            // final_price: "",
-            // active: "",
         },
         errors: {}
     };
-
-    // schema = {
-    //     date: Joi.date()
-    //         .required()
-    //         .label("Fecha de emisión"),
-    //     // los dos que siguen son con opciones traidas del back
-    //     client: Joi.string()
-    //         .required()
-    //         .label("Cliente"),
-    //     items: Joi.string()
-    //         .required()
-    //         .label("Items"),
-    //     discount: Joi.number()
-    //         .integer()
-    //         .label("Descuento")
-    // };
 
     async componentDidMount() {
         const presId = this.props.match.params.id;
@@ -61,15 +45,63 @@ class PrespuestoForm extends Form {
         };
     }
 
-    doSubmit = async () => {
-        const { info: presupuesto } = await http.post(
-            config.apiEndpointPresupuesto,
-            this.state.data
-        );
-        const data = [presupuesto, ...this.state.data];
-        this.setState({ data });
-        this.props.history.push("/presupuesto");
-    };
+    doSubmit() {
+        fetch(config.apiEndpointPresupuesto, {
+            method: "POST",
+            body: JSON.stringify(this.state.data),
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            }
+        })
+            .then(response => {
+                console.log(response.status, response);
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    // let error = new Error(response.statusText);
+                    // error.response = response.json();
+                    // throw error;
+                    return response.json();
+                }
+            })
+            .then(errors => {
+                if (errors) {
+                    this.setState({ errors });
+                }
+            });
+        this.props.history.push("/presupuestos");
+    }
+    // doSubmit = async () => {
+    //     const { info: presupuesto } = await http.post(
+    //         config.apiEndpointPresupuesto,
+    //         this.state.data
+    //     );
+    //     const data = [presupuesto, ...this.state.data];
+    //     this.setState({ data });
+    //     this.props.history.push("/presupuesto");
+    // };
+    handleChange(event) {
+        let name = event.target.name;
+        let value = event.target.value;
+        this.setState({ data: { [name]: value } });
+    }
+
+    addItem(event) {
+        let index = event.target.name;
+        let value = event.target.checked;
+        console.log(event.target.checked);
+        let items = update(this.state.data.items, {
+            [index]: { selected: { $set: value } }
+        });
+        this.setState({ data: { items } });
+    }
+
+    get selected() {
+        return this.state.data.items.filter(item => {
+            return item.selected;
+        });
+    }
 
     render() {
         return (
@@ -84,19 +116,37 @@ class PrespuestoForm extends Form {
                     <div className="form-group">
                         <label>Cliente</label>
                         <select
+                            name="client"
                             className="form-control"
-                            value={this.state.value}
                             onChange={this.handleChange}
                         >
-                            <option value="INS">Inscripto</option>
-                            <option value="EXC">Exento</option>
-                            <option value="CFI">Consumidor Final</option>
+                            <option value="INS">item1</option>
+                            <option value="EXC">item2</option>
+                            <option value="CFI">item3 </option>
                         </select>
                     </div>
-                    {this.renderInput("items", "Productos", "Productos")}
+                    {/* {this.renderInput("items", "Items", "Agrega tus items")} */}
+                    {this.selected.map(item => {
+                        return <span>{item.name}</span>;
+                    })}
                     {this.renderInput("discount", "Descuento", "%")}
                 </form>
                 {this.renderButton("Enviar")}
+                {this.state.data.items.length > 0 &&
+                    this.state.data.items.map((item, index) => {
+                        return (
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    key={item.id}
+                                    onClick={this.addItem.bind(this)}
+                                    name={index}
+                                    checked={item.selected}
+                                ></input>
+                                <span>{item.name}</span>
+                            </label>
+                        );
+                    })}
             </div>
         );
     }

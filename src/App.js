@@ -33,11 +33,11 @@ class App extends Component {
                             exact
                             component={PresupuestoForm}
                         />
-                        {/* <Route
+                        <Route
                             path="/clientes/modificar/:id"
                             exact
                             component={ClientForm}
-                        /> */}
+                        />
                         <Route
                             path="/productos/nuevo"
                             exact
